@@ -52,6 +52,9 @@ create_all()
 class TaskManager(cream.ipc.Object):
 
     __ipc_signals__ = {
+        'task_added': ('a{sv}', 'org.cream.pim.Tasks'),
+        'task_deleted': ('i', 'org.cream.pim.Tasks'),
+        'task_changed': ('a{sv}', 'org.cream.pim.Tasks')
         }
 
     def __init__(self):
@@ -76,6 +79,8 @@ class TaskManager(cream.ipc.Object):
 
         session.commit()
 
+        self.emit_signal('task_added', task.to_dict())
+
         return task.to_dict()
 
 
@@ -93,6 +98,8 @@ class TaskManager(cream.ipc.Object):
 
         session.commit()
 
+        self.emit_signal('task_changed', task.to_dict())
+
         return task.to_dict()
 
 
@@ -105,6 +112,8 @@ class TaskManager(cream.ipc.Object):
 
         session.commit()
 
+        self.emit_signal('task_changed', task.to_dict())
+
         return task.to_dict()
 
 
@@ -112,6 +121,9 @@ class TaskManager(cream.ipc.Object):
     def delete_task(self, id):
 
         task = Task.filter_by(id=id).one()
+
+        self.emit_signal('task_deleted', task.id)
+
         task.delete()
 
         session.commit()
