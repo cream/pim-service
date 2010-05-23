@@ -88,7 +88,7 @@ class TaskManager(cream.ipc.Object):
     @cream.ipc.method('isssii', 'a{sv}', interface='org.cream.pim.Tasks')
     def edit_task(self, id, title, description, category, priority, deadline):
 
-        task = Task.filter_by(id=id).one()
+        task = Task.query.filter_by(id=id).one()
 
         task.title = title
         task.description = description
@@ -106,8 +106,7 @@ class TaskManager(cream.ipc.Object):
     @cream.ipc.method('ii', 'a{sv}', interface='org.cream.pim.Tasks')
     def set_task_status(self, id, status):
 
-        task = Task.filter_by(id=id).one()
-
+        task = Task.query.filter_by(id=id).one()
         task.status = status
 
         session.commit()
@@ -120,19 +119,17 @@ class TaskManager(cream.ipc.Object):
     @cream.ipc.method('i', '', interface='org.cream.pim.Tasks')
     def delete_task(self, id):
 
-        task = Task.filter_by(id=id).one()
+        task = Task.query.filter_by(id=id).one()
 
         self.emit_signal('task_deleted', task.id)
 
         task.delete()
-
         session.commit()
 
 
     @cream.ipc.method('i', 'a{sv}', interface='org.cream.pim.Tasks')
     def get_task(self, id):
-
-        Task.filter_by(id=id).one().to_dict()
+        return Task.query.filter_by(id=id).one().to_dict()
 
 
     @cream.ipc.method('', 'aa{sv}', interface='org.cream.pim.Tasks')
