@@ -16,17 +16,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-import os
-
-import gobject
-import gtk.gdk
-import thread
-import weakref
-
 import cream
 import cream.ipc
-
 from tasks import TaskManager
+
 
 class PIMService(cream.Module, cream.ipc.Object):
 
