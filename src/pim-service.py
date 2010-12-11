@@ -18,20 +18,21 @@
 
 import cream
 import cream.ipc
-from tasks import TaskManager
+from pim.tasks import TaskManager
 
 
 class PIMService(cream.Module, cream.ipc.Object):
 
     def __init__(self):
 
-        cream.Module.__init__(self)
+        cream.Module.__init__(self, 'org.cream.PIM')
         cream.ipc.Object.__init__(self,
             'org.cream.PIM',
             '/org/cream/PIM'
             )
 
-        self.todo_manager = TaskManager()
+        database_path = self.context.expand_path('data/tasks.db', mode='w')
+        self.todo_manager = TaskManager(database_path)
 
 
 if __name__ == '__main__':

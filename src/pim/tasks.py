@@ -20,9 +20,6 @@ import cream
 import cream.ipc
 from elixir import *
 
-metadata.bind = "sqlite:///tasks.db"
-metadata.bind.echo = False
-
 STATUS_TODO = 0
 STATUS_WIP = 1
 STATUS_DONE = 2
@@ -45,9 +42,6 @@ class Task(Entity):
         return '<Task "%s">' % (self.title)
 
 
-setup_all()
-create_all()
-
 
 class TaskManager(cream.ipc.Object):
 
@@ -57,12 +51,18 @@ class TaskManager(cream.ipc.Object):
         'task_changed': ('a{sv}', 'org.cream.pim.Tasks')
         }
 
-    def __init__(self):
+    def __init__(self, database_path):
 
         cream.ipc.Object.__init__(self,
             'org.cream.PIM',
             '/org/cream/pim/Tasks'
             )
+
+        metadata.bind = 'sqlite:///{path}'.format(path=database_path)
+        metadata.bind.echo = False
+
+        setup_all()
+        create_all()
 
 
     @cream.ipc.method('sssii', 'a{sv}', interface='org.cream.pim.Tasks')
