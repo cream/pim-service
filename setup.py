@@ -17,7 +17,8 @@ class post_install(install_scripts):
 ID = 'org.cream.PIM'
 
 data_files = [
-    ('share/cream/{0}'.format(ID), ['src/manifest.xml'])
+    ('share/cream/{0}'.format(ID), ['src/manifest.xml']),
+    ('share/dbus-1/services', ['src/org.cream.PIM.service'])
 ]
 
 setup(

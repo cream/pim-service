@@ -16,6 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+import os
+
 import cream
 import cream.ipc
 from pim.tasks import TaskManager
@@ -31,8 +33,10 @@ class PIMService(cream.Module, cream.ipc.Object):
             '/org/cream/PIM'
             )
 
-        database_path = self.context.expand_path('data/tasks.db', mode='w')
-        self.todo_manager = TaskManager(database_path)
+        database_path = os.path.join(self.context.get_user_path(), 'data')
+        os.makedirs(database_path)
+
+        self.todo_manager = TaskManager(os.path.join(database_path, 'tasks.db'))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.cream.PIM
+Exec=/usr/bin/pim-service
