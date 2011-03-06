@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<manifest namespace="org.cream" version="0.0.5">
+    <component name="Calendar" id=".PIM.Calendar" version="0.1" type=".Extension" entry="./calendar.py">
+        <license title="GPL" version="3+" />
+
+        <author name="Kristoffer Kleine" mail="kris.kleine@yahoo.de" type="developer" />
+    </component>
+</manifest>
