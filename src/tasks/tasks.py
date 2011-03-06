@@ -16,8 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+import os
+
 import cream
 import cream.ipc
+import cream.extensions
 from elixir import *
 
 STATUS_TODO = 0
@@ -42,8 +45,8 @@ class Task(Entity):
         return '<Task "%s">' % (self.title)
 
 
-
-class TaskManager(cream.ipc.Object):
+@cream.extensions.register
+class TasksExtension(cream.extensions.Extension, cream.ipc.Object):
 
     __ipc_signals__ = {
         'task_added': ('a{sv}', 'org.cream.pim.Tasks'),
@@ -51,14 +54,16 @@ class TaskManager(cream.ipc.Object):
         'task_changed': ('a{sv}', 'org.cream.pim.Tasks')
         }
 
-    def __init__(self, database_path):
+    def __init__(self, extension_interface):
 
+        cream.extensions.Extension.__init__(self, extension_interface)
         cream.ipc.Object.__init__(self,
             'org.cream.PIM',
             '/org/cream/pim/Tasks'
             )
 
-        metadata.bind = 'sqlite:///{path}'.format(path=database_path)
+        path = os.path.join(extension_interface.context.get_path(), 'tasks/tasks.sqlite')
+        metadata.bind = 'sqlite:///{0}'.format(path)
         metadata.bind.echo = False
 
         setup_all()
