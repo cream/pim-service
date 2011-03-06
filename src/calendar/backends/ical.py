@@ -109,16 +109,15 @@ class ICalendarSource(CalendarSource, FileSystemEventHandler):
 
     def _save(self):
 
+        self._deactivate_observer()
         with open(self.icalendar_file, 'w') as file_handle:
             file_handle.write(self.calendar.as_string())
-
+        self._activate_observer()
 
 
     def _read(self):
-        self._deactivate_observer()
         with open(self.icalendar_file) as file_handle:
             self.calendar = icalendar.Calendar.from_string(file_handle.read())
-        self._activate_observer()
 
 
     def _get_event(self, event):
