@@ -33,7 +33,6 @@ class PIMService(cream.Module, cream.ipc.Object):
             )
 
         self.tasks = self.extension_manager.load_by_name('Tasks', self)
-        self.calendar = self.extension_manager.load_by_name('Calendar', self)
 
 
 if __name__ == '__main__':
