@@ -46,7 +46,7 @@ class Database(object):
 
     def set_synced(self, uid, synced):
 
-        event = Event.get_by(uid=uid):
+        event = Event.get_by(uid=uid)
         event.synced = synced
         session.commit()
 
