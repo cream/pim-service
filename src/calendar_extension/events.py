@@ -1,7 +1,7 @@
 import gobject
 
 from calendar_extension.database import Database
-from calendar_extension.calendars import Calendars
+from calendar_extension.backends import BackendError
 
 from calendar_extension.backends.ical import IcalBackend
 from calendar_extension.backends.evo import EvolutionBackend
@@ -32,7 +32,10 @@ class EventManager(gobject.GObject):
 
         for calendar in self.database.get_calendars():
             backend = BACKENDS.get(calendar.type)
-            backend_instance = backend(**calendar.to_dict())
+            try:
+                backend_instance = backend(**calendar.to_dict())
+            except BackendError:
+                continue
 
             self.calendars[calendar.uid] = backend_instance
 
