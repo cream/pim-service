@@ -47,7 +47,7 @@ class EventManager(gobject.GObject):
             events = backend_instance.get_events()
             self.database.sync_events(events, calendar.uid)
 
-            self.emit('calendar-added', calendar_uid, calendar)
+            self.emit('calendar-added', calendar.uid, calendar)
 
         for uid, calendar in self.calendars.iteritems():
             unsynced_events = self.database.query({'synced': False})
