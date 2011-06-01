@@ -11,9 +11,9 @@ from calendar_extension.util import Event
 
 class IcalBackend(CalendarBackend, FileSystemEventHandler):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, uid, name, type, source):
 
-        CalendarBackend.__init__(self, *args, **kwargs)
+        CalendarBackend.__init__(self, uid, name, type, source)
         FileSystemEventHandler.__init__(self)
 
         self.timeout_id = None
