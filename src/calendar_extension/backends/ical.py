@@ -5,7 +5,7 @@ import icalendar
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from calendar_extension.backends import CalendarBackend
+from calendar_extension.backends import CalendarBackend, BackendError
 from calendar_extension.util import Event
 
 
@@ -17,6 +17,9 @@ class IcalBackend(CalendarBackend, FileSystemEventHandler):
         FileSystemEventHandler.__init__(self)
 
         self.timeout_id = None
+
+        if not os.path.isfile(self.source):
+            raise BackendError
 
         with open(self.source) as file_handle:
             self.calendar = icalendar.Calendar.from_string(file_handle.read())
