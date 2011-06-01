@@ -1,6 +1,10 @@
 import gobject
 
 
+class BackendError(Exception):
+    pass
+
+
 class CalendarBackend(gobject.GObject):
 
     __gsignals__ = {
