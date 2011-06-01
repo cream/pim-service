@@ -67,7 +67,9 @@ class EventManager(gobject.GObject):
     def add_calendar(self, calendar):
 
         calendar = self.database.add_calendar(calendar)
-        self.calendars.add_calendar(calendar)
+        self.calendars[calendar.uid] = calendar
+
+        self.emit('calendar-added', calendar.uid, calendar)
 
 
     def add_event(self, event, calendar_uid):
