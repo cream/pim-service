@@ -31,26 +31,10 @@ class EventManager(gobject.GObject):
         self.calendars = {}
 
         for calendar in self.database.get_calendars():
-            backend = BACKENDS.get(calendar.type)
-            try:
-                backend_instance = backend(**calendar.to_dict())
-            except BackendError:
-                continue
-
-            self.calendars[calendar.uid] = backend_instance
-
-            backend_instance.connect('event-added', self.on_event_added)
-            backend_instance.connect('event-removed', self.on_event_removed)
-            backend_instance.connect('event-updated', self.on_event_updated)
-            backend_instance.connect('event-synced', self.on_event_synced)
-
-            events = backend_instance.get_events()
-            self.database.sync_events(events, calendar.uid)
-
-            self.emit('calendar-added', calendar.uid, calendar)
+            self._add_calendar(calendar)
 
         for uid, calendar in self.calendars.iteritems():
-            unsynced_events = self.database.query({'synced': False})
+            unsynced_events = self.database.query({'synced': False, 'calendar_uid':uid})
             calendar.sync_events(unsynced_events)
 
 
@@ -67,7 +51,25 @@ class EventManager(gobject.GObject):
     def add_calendar(self, calendar):
 
         calendar = self.database.add_calendar(calendar)
-        self.calendars[calendar.uid] = calendar
+        self._add_calendar(calendar)
+
+    def _add_calendar(self, calendar):
+
+        backend = BACKENDS.get(calendar.type)
+        try:
+            backend_instance = backend(**calendar.to_dict())
+        except BackendError:
+            return
+
+        self.calendars[calendar.uid] = backend_instance
+
+        backend_instance.connect('event-added', self.on_event_added)
+        backend_instance.connect('event-removed', self.on_event_removed)
+        backend_instance.connect('event-updated', self.on_event_updated)
+        backend_instance.connect('event-synced', self.on_event_synced)
+
+        events = backend_instance.get_events()
+        self.database.sync_events(events, calendar.uid)
 
         self.emit('calendar-added', calendar.uid, calendar)
 
