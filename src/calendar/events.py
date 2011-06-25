@@ -106,10 +106,6 @@ class EventManager(gobject.GObject):
 
 
     def on_event_added(self, calendar, uid, event):
-    
-        print calendar
-        print uid
-        print event
 
         event.synced = True
         event.uid = uid

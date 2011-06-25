@@ -44,8 +44,6 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
 
         :type query: dict
         """
-        ret = self.events_manager.query(query)
-        print ret
         return self.events_manager.query(query)
 
 
