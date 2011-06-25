@@ -1,5 +1,5 @@
 from elixir import *
-from calendar_extension.util import Event as _Event, Calendar as _Calendar
+from calendar.util import Event as _Event, Calendar as _Calendar
 
 
 class Event(Entity):

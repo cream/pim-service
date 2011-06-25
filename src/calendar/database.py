@@ -2,7 +2,7 @@ import os
 
 from models import *
 
-from calendar_extension.util import generate_uid, Event as _Event, Calendar as _Calendar, \
+from calendar.util import generate_uid, Event as _Event, Calendar as _Calendar, \
                                      convert_to_datetime
 
 class Database(object):
@@ -10,7 +10,7 @@ class Database(object):
     def __init__(self, path):
 
         database_path = os.path.join(path, 'events.sqlite')
-        metadata.bind = 'sqlite:///{0}'.format(database_path)
+        metadata.bind = u'sqlite:///{0}'.format(database_path)
         metadata.bind.echo = False
         setup_all(True)
 

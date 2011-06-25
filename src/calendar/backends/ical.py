@@ -5,8 +5,8 @@ import icalendar
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from calendar_extension.backends import CalendarBackend, BackendError
-from calendar_extension.util import Event
+from calendar.backends import CalendarBackend, BackendError
+from calendar.util import Event
 
 
 class IcalBackend(CalendarBackend, FileSystemEventHandler):
@@ -98,7 +98,7 @@ class IcalBackend(CalendarBackend, FileSystemEventHandler):
             else:
                 event = Event.from_ical(new_event.as_string(), self.uid)
                 event.synced = True
-                self.emit('event-added', event, self.uid)
+                self.emit('event-added', event.uid, event)
 
 
 

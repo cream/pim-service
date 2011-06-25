@@ -1,8 +1,9 @@
 import cream.ipc
 import cream.extensions
 
-from calendar_extension.events import EventManager
-from calendar_extension.util import Event, Calendar
+from calendar.events import EventManager
+from calendar.util import Event, Calendar
+from calendar.auto_search import search_for_calendars
 
 @cream.extensions.register
 class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
@@ -32,8 +33,8 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         self.events_manager.connect('event-removed', self.on_event_removed)
         self.events_manager.connect('event-updated', self.on_event_updated)
         self.events_manager.connect('calendar-added', self.on_calendar_added)
-        self.events_manager.connect('calendar-removed', self.on_calendar_removed)
-        self.events_manager.connect('calendar-updated', self.on_calendar_updated)
+        #self.events_manager.connect('calendar-removed', self.on_calendar_removed)
+        #self.events_manager.connect('calendar-updated', self.on_calendar_updated)
 
 
     @cream.ipc.method('a{sv}', 'aa{sv}')
@@ -43,6 +44,8 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
 
         :type query: dict
         """
+        ret = self.events_manager.query(query)
+        print ret
         return self.events_manager.query(query)
 
 
@@ -99,7 +102,23 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         :type fields: dict
         """
         self.events_manager.update_event(uid, fields)
+        
+        
+    @cream.ipc.method('', '')
+    def search_for_calendars(self):
+        
+        calendars = search_for_calendars()
+        db_calendars = self.get_calendars()
 
+        for new_cal in calendars:
+            for old_cal in db_calendars:
+                if (old_cal['name'] == new_cal['name']
+                    and old_cal['source'] == new_cal['source']
+                    and old_cal['type'] == new_cal['type']):
+                    break
+            else:
+                print 'adding calendar {0}'.format(new_cal['source'])
+                self.add_calendar(new_cal)
 
 
     def on_event_added(self, source, uid, event):

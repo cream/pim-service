@@ -139,16 +139,14 @@ class Event(object):
     def to_dbus(self):
 
         return {
-            'uid': self.uid,
-            'title': self.title,
-            'description': self.description,
+            'uid': str(self.uid),
+            'title': str(self.title),
+            'description': str(self.description),
             'start': time.mktime(self.start.timetuple()),
             'end': time.mktime(self.end.timetuple()),
-            'location': self.location,
+            'location': str(self.location),
             #'recurrence': self.recurrence,
-            'synced': self.synced,
-            'deleted': self.deleted,
-            'calendar_uid': self.calendar_uid
+            'calendar_uid': str(self.calendar_uid)
         }
 
 

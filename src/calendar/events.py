@@ -1,10 +1,10 @@
 import gobject
 
-from calendar_extension.database import Database
-from calendar_extension.backends import BackendError
+from calendar.database import Database
+from calendar.backends import BackendError
 
-from calendar_extension.backends.ical import IcalBackend
-from calendar_extension.backends.evo import EvolutionBackend
+from calendar.backends.ical import IcalBackend
+from calendar.backends.evo import EvolutionBackend
 
 BACKENDS = {
     'icalendar': IcalBackend,
@@ -106,6 +106,10 @@ class EventManager(gobject.GObject):
 
 
     def on_event_added(self, calendar, uid, event):
+    
+        print calendar
+        print uid
+        print event
 
         event.synced = True
         event.uid = uid
