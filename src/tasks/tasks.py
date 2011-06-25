@@ -62,8 +62,10 @@ class TasksExtension(cream.extensions.Extension, cream.ipc.Object):
             '/org/cream/pim/Tasks'
             )
 
-        path = os.path.join(extension_interface.context.get_path(), 'tasks/tasks.sqlite')
-        metadata.bind = 'sqlite:///{0}'.format(path)
+        path = extension_interface.context.get_user_path()
+        if not os.path.exists(path):
+            os.mkdir(path)
+        metadata.bind = 'sqlite:///{0}'.format(os.path.join(path, 'tasks.sqlite'))
         metadata.bind.echo = False
 
         setup_all()
