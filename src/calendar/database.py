@@ -10,6 +10,8 @@ class Database(object):
     def __init__(self, path):
 
         database_path = os.path.join(path, 'events.sqlite')
+        if not os.path.exists(path):
+            os.makedirs(path)
         metadata.bind = u'sqlite:///{0}'.format(database_path)
         metadata.bind.echo = False
         setup_all(True)

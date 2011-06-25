@@ -27,7 +27,7 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         )
 
 
-        self.events_manager = EventManager(extension_interface.context.get_path())
+        self.events_manager = EventManager(extension_interface.context.get_user_path())
 
         self.events_manager.connect('event-added', self.on_event_added)
         self.events_manager.connect('event-removed', self.on_event_removed)
