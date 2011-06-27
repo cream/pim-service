@@ -2,7 +2,7 @@ import os
 
 from models import *
 
-from calendar.util import generate_uid, Event as _Event, Calendar as _Calendar, \
+from _calendar.util import generate_uid, Event as _Event, Calendar as _Calendar, \
                                      convert_to_datetime
 
 class Database(object):
@@ -44,6 +44,11 @@ class Database(object):
     def get_calendars(self):
 
         return [calendar.to_internal() for calendar in Calendar.query.all()]
+        
+    
+    def get_sources(self):
+    
+        return [source.to_internal() for source in CalendarSource.query.all()]
 
 
     def set_synced(self, uid, synced):
@@ -51,20 +56,34 @@ class Database(object):
         event = Event.get_by(uid=uid)
         event.synced = synced
         session.commit()
+        
+    
+    def add_source(self, type, data):
+    
+        source = CalendarSource.get_by(data=data)
+        if source is None:
+            source = CalendarSource(uid=generate_uid(), type=type, data=data)
+            session.commit()
+        
+        return source.to_internal()
 
 
-    def add_calendar(self, calendar):
+    def add_calendar(self, source_uid, name, calendar_uid=None):
+    
+        if Calendar.get_by(uid=calendar_uid) or Calendar.get_by(name=name):
+            # calendar is already in database
+            return
+        
+        source = CalendarSource.get_by(uid=source_uid)
 
-        cal = Calendar(
-                name = calendar.name,
-                source = calendar.source,
-                type = calendar.type,
-        )
+        cal = Calendar(name=name, source=source)
 
-        if calendar.uid:
-            cal.uid = calendar.uid
+        if calendar_uid:
+            cal.uid = calendar_uid
         else:
             cal.uid = generate_uid()
+
+        source.calendars.append(cal)
 
         session.commit()
 

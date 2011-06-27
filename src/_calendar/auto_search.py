@@ -2,9 +2,9 @@ import os
 
 def search_for_calendars():
 
-    calendars = []
+    calendars = {}
     
-    calendars.extend(find_evolution_calendars())
+    calendars['evolution'] = find_evolution_calendars()
     
     return calendars
     
@@ -24,8 +24,7 @@ def find_evolution_calendars():
         
         if os.path.isfile(cal_file):
             calendar = {'name': name.decode('utf-8'),
-                        'source': cal_file,
-                        'type': 'evolution'}
+                        'data': cal_file}
             calendars.append(calendar)
             
     return calendars

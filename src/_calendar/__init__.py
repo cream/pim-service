@@ -1,9 +1,9 @@
 import cream.ipc
 import cream.extensions
 
-from calendar.events import EventManager
-from calendar.util import Event, Calendar
-from calendar.auto_search import search_for_calendars
+from _calendar.events import EventManager
+from _calendar.util import Event, Calendar
+from _calendar.auto_search import search_for_calendars
 
 @cream.extensions.register
 class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
@@ -12,7 +12,7 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         'event_added': ('sa{sv}', 'org.cream.PIM.Calendar'),
         'event_removed': ('sa{sv}', 'org.cream.PIM.Calendar'),
         'event_updated': ('sa{sv}', 'org.cream.PIM.Calendar'),
-        'calendar_added': ('sa{sv}', 'org.cream.PIM.Calendar'),
+        'calendar_added': ('sa{sv}b', 'org.cream.PIM.Calendar'),
         'calendar_removed': ('sa{sv}', 'org.cream.PIM.Calendar'),
         'calendar_updated': ('sa{sv}', 'org.cream.PIM.Calendar'),
     }
@@ -33,8 +33,8 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         self.events_manager.connect('event-removed', self.on_event_removed)
         self.events_manager.connect('event-updated', self.on_event_updated)
         self.events_manager.connect('calendar-added', self.on_calendar_added)
-        #self.events_manager.connect('calendar-removed', self.on_calendar_removed)
-        #self.events_manager.connect('calendar-updated', self.on_calendar_updated)
+        self.events_manager.connect('calendar-removed', self.on_calendar_removed)
+        self.events_manager.connect('calendar-updated', self.on_calendar_updated)
 
 
     @cream.ipc.method('a{sv}', 'aa{sv}')
@@ -55,17 +55,33 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         return self.events_manager.get_calendars()
 
 
-    @cream.ipc.method('a{sv}', '')
-    def add_calendar(self, calendar):
+    @cream.ipc.method('ss', '')
+    def add_source(self, type, data):
+    
+         return self.events_manager.add_source(type, data)
+    
+
+    @cream.ipc.method('ss', '')
+    def add_calendar(self, source_uid, name):
         """
         Add a calendar specified by ``calendar``.
 
         :type calendar: dict
         """
+        return self.events_manager.add_calendar(source_uid, name)
 
-        calendar = Calendar(**calendar)
-        self.events_manager.add_calendar(calendar)
 
+    @cream.ipc.method('sss', '')
+    def authenticate_source(self, uid, username, password):
+        """
+        Authenticate specified source
+        
+        :type uid: string
+        :type username: string
+        :type password: string
+        """
+        self.events_manager.authenticate_source(uid, username, password)
+        
 
     @cream.ipc.method('a{sv}i', '')
     def add_event(self, event, calendar_uid):
@@ -106,17 +122,12 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
     def search_for_calendars(self):
         
         calendars = search_for_calendars()
-        db_calendars = self.get_calendars()
-
-        for new_cal in calendars:
-            for old_cal in db_calendars:
-                if (old_cal['name'] == new_cal['name']
-                    and old_cal['source'] == new_cal['source']
-                    and old_cal['type'] == new_cal['type']):
-                    break
-            else:
-                print 'adding calendar {0}'.format(new_cal['source'])
-                self.add_calendar(new_cal)
+        
+        for type, calendars in calendars.iteritems():
+            for calendar in calendars:
+                source = self.add_source(type, calendar['data'])
+                if source:
+                    calendar = self.add_calendar(source.uid, calendar['name'])
 
 
     def on_event_added(self, source, uid, event):
@@ -134,9 +145,9 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         self.emit_signal('event_updated', uid, event.to_dbus())
 
 
-    def on_calendar_added(self, source, calendar_uid, calendar):
+    def on_calendar_added(self, source, calendar_uid, calendar, requires_auth):
 
-        self.emit_signal('calendar_added', calendar_uid, calendar.to_dict())
+        self.emit_signal('calendar_added', calendar_uid, calendar.to_dict(), requires_auth)
 
 
     def on_calendar_removed(self, source, calendar_uid, calendar):

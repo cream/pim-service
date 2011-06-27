@@ -1,5 +1,6 @@
 from elixir import *
-from calendar.util import Event as _Event, Calendar as _Calendar
+from _calendar.util import Event as _Event, Calendar as _Calendar, \
+                          CalendarSource as _CalendarSource
 
 
 class Event(Entity):
@@ -23,15 +24,30 @@ class Event(Entity):
 
 
 
+class CalendarSource(Entity):
+
+    uid = Field(Unicode, primary_key=True)
+    
+    type = Field(Unicode)
+    data = Field(Unicode)
+    calendars = OneToMany('Calendar')
+    
+    def to_internal(self):
+        return _CalendarSource(calendars=self.calendars, **self.to_dict())
+
+    def __repr__(self):
+        return '<CalendarSource "%s">' % (self.type)
+        
+
 class Calendar(Entity):
 
     uid = Field(Unicode, primary_key=True)
     name = Field(Unicode)
-    source = Field(Unicode)
-    type = Field(Unicode)
+    source = ManyToOne('CalendarSource')
     events = OneToMany('Event')
-
+    
     def to_internal(self):
+        print self.to_dict()
         return _Calendar(**self.to_dict())
 
     def __repr__(self):
