@@ -1,9 +1,11 @@
-from extensions.calendar.backends.ical import IcalBackend
+from extensions.calendar.backends import CalendarSource
+from extensions.calendar.backends.ical import IcalSource, IcalCalendar
 
 
-class EvolutionBackend(IcalBackend):
+class EvolutionSource(IcalSource, CalendarSource):
+    type = 'evolution'
 
 
-    def __init__(self, uid, name, type, source):
+    def __init__(self, uid, data, calendars):
 
-        IcalBackend.__init__(self, uid, name, type, source)
+        IcalSource.__init__(self, uid, data, calendars)

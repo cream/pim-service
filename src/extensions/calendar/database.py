@@ -2,8 +2,8 @@ import os
 
 from models import *
 
-from extensions.calendar.util import generate_uid, Event as _Event, \
-                                     Calendar as _Calendar, convert_to_datetime
+from extensions.calendar.util import generate_uid, Event as _Event, Calendar as _Calendar, \
+                                     convert_to_datetime
 
 class Database(object):
 
@@ -46,6 +46,11 @@ class Database(object):
         return [calendar.to_internal() for calendar in Calendar.query.all()]
 
 
+    def get_sources(self):
+
+        return [source.to_internal() for source in CalendarSource.query.all()]
+
+
     def set_synced(self, uid, synced):
 
         event = Event.get_by(uid=uid)
@@ -53,18 +58,48 @@ class Database(object):
         session.commit()
 
 
-    def add_calendar(self, calendar):
+    def add_source(self, type, data):
 
-        cal = Calendar(
-                name = calendar.name,
-                source = calendar.source,
-                type = calendar.type,
-        )
+        if not isinstance(data, basestring):
+            source = CalendarSource(uid=generate_uid(), type=type)
+        else:
+            source = CalendarSource.get_by(data=data)
+            if source is None:
+                source = CalendarSource(uid=generate_uid(), type=type, data=data)
 
-        if calendar.uid:
-            cal.uid = calendar.uid
+        session.commit()
+
+        return source.to_internal()
+
+
+    def update_source(self, source_uid, fields):
+
+        source = CalendarSource.get_by(uid=source_uid)
+        if source:
+            for key, value in fields.iteritems():
+                setattr(source, key, value)
+
+            session.commit()
+
+            return source.to_internal()
+
+
+    def add_calendar(self, source_uid, name, calendar_uid=None):
+
+        if Calendar.get_by(uid=calendar_uid) or Calendar.get_by(name=name):
+            # calendar is already in database
+            return
+
+        source = CalendarSource.get_by(uid=source_uid)
+
+        cal = Calendar(name=name, source=source)
+
+        if calendar_uid:
+            cal.uid = calendar_uid
         else:
             cal.uid = generate_uid()
+
+        source.calendars.append(cal)
 
         session.commit()
 
@@ -77,9 +112,9 @@ class Database(object):
         if calendar:
             calendar.delete()
 
-        session.commit()
+            session.commit()
 
-        return calendar.to_internal()
+            return calendar.to_internal()
 
 
     def update_calendar(self, uid, fields):
@@ -89,9 +124,9 @@ class Database(object):
             for key, value in fields.iteritems():
                 setattr(calendar, key, value)
 
-        session.commit()
+            session.commit()
 
-        return calendar.to_internal()
+            return calendar.to_internal()
 
 
     def add_event(self, event, calendar_uid):

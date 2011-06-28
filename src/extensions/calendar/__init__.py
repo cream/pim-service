@@ -33,8 +33,8 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         self.events_manager.connect('event-removed', self.on_event_removed)
         self.events_manager.connect('event-updated', self.on_event_updated)
         self.events_manager.connect('calendar-added', self.on_calendar_added)
-        #self.events_manager.connect('calendar-removed', self.on_calendar_removed)
-        #self.events_manager.connect('calendar-updated', self.on_calendar_updated)
+        self.events_manager.connect('calendar-removed', self.on_calendar_removed)
+        self.events_manager.connect('calendar-updated', self.on_calendar_updated)
 
 
     @cream.ipc.method('a{sv}', 'aa{sv}')
@@ -55,16 +55,21 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         return self.events_manager.get_calendars()
 
 
-    @cream.ipc.method('a{sv}', '')
-    def add_calendar(self, calendar):
-        """
-        Add a calendar specified by ``calendar``.
+    @cream.ipc.method('sv', '')
+    def add_source(self, type, data):
 
-        :type calendar: dict
-        """
+         return self.events_manager.add_source(type, data)
 
-        calendar = Calendar(**calendar)
-        self.events_manager.add_calendar(calendar)
+
+    @cream.ipc.method('ss', '')
+    def add_calendar(self, source_uid, name):
+        """
+        Add a calendar named ``name`` to the specified source.
+
+        :type source_uid: string
+        :type name: string
+        """
+        return self.events_manager.add_calendar(source_uid, name)
 
 
     @cream.ipc.method('a{sv}i', '')
@@ -73,7 +78,7 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         Add an event to a calendar specified by ``calendar_uid``.
 
         :type event: dict
-        :type calendar_uid: int
+        :type calendar_uid: string
         """
 
         event = Event(**event)
@@ -85,7 +90,7 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         """
         Remove the event specified by ``uid``.
 
-        :type event: dict
+        :type uid: string
         """
         self.events_manager.remove_event(uid)
 
@@ -100,23 +105,18 @@ class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):
         :type fields: dict
         """
         self.events_manager.update_event(uid, fields)
-        
-        
+
+
     @cream.ipc.method('', '')
     def search_for_calendars(self):
-        
-        calendars = search_for_calendars()
-        db_calendars = self.get_calendars()
 
-        for new_cal in calendars:
-            for old_cal in db_calendars:
-                if (old_cal['name'] == new_cal['name']
-                    and old_cal['source'] == new_cal['source']
-                    and old_cal['type'] == new_cal['type']):
-                    break
-            else:
-                print 'adding calendar {0}'.format(new_cal['source'])
-                self.add_calendar(new_cal)
+        calendars = search_for_calendars()
+
+        for type, calendars in calendars.iteritems():
+            for calendar in calendars:
+                source = self.add_source(type, calendar['data'])
+                if source:
+                    calendar = self.add_calendar(source.uid, calendar['name'])
 
 
     def on_event_added(self, source, uid, event):

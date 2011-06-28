@@ -5,27 +5,56 @@ import icalendar
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from extensions.calendar.backends import CalendarBackend, BackendError
+from extensions.calendar.backends import CalendarSource, BackendError, Calendar
 from extensions.calendar.util import Event
 
 
-class IcalBackend(CalendarBackend, FileSystemEventHandler):
+class IcalSource(CalendarSource):
+    type = 'ical'
 
-    def __init__(self, uid, name, type, source):
+    def __init__(self, uid, data, calendars):
 
-        CalendarBackend.__init__(self, uid, name, type, source)
+        CalendarSource.__init__(self, uid, data, calendars)
+
+        for calendar in calendars:
+            calendar = IcalCalendar(calendar.uid, calendar.name, data)
+            CalendarSource._add_calendar_instance(self, calendar)
+
+
+    def add_calendar(self, uid, name):
+
+        calendar = IcalCalendar(uid, name, self.data)
+        CalendarSource._add_calendar_instance(self, calendar)
+
+
+
+    def remove_calendar(self):
+        pass
+
+
+    def update_calendar(self):
+        pass
+
+
+
+class IcalCalendar(Calendar, FileSystemEventHandler):
+
+    def __init__(self, uid='', name='', path='.'):
+
+        Calendar.__init__(self, uid, name)
         FileSystemEventHandler.__init__(self)
 
+        self.path = path
         self.timeout_id = None
 
-        if not os.path.isfile(self.source):
+        if not os.path.isfile(self.path):
             raise BackendError
 
-        with open(self.source) as file_handle:
+        with open(self.path) as file_handle:
             self.calendar = icalendar.Calendar.from_string(file_handle.read())
 
         self.observer = Observer()
-        self.watch = self.observer.schedule(self, os.path.dirname(self.source))
+        self.watch = self.observer.schedule(self, os.path.dirname(self.path))
         self.observer.start()
 
 
@@ -47,7 +76,7 @@ class IcalBackend(CalendarBackend, FileSystemEventHandler):
     def _save(self):
 
         self._deactivate_observer()
-        with open(self.source, 'w') as file_handle:
+        with open(self.path, 'w') as file_handle:
             file_handle.write(self.calendar.as_string())
         self._activate_observer()
 
@@ -59,7 +88,7 @@ class IcalBackend(CalendarBackend, FileSystemEventHandler):
         else:
             src_path = event.src_path
 
-        if not src_path == self.source:
+        if not src_path == self.path:
             return
 
         # the modified event is triggered twice, so cancel the first call to
@@ -73,7 +102,7 @@ class IcalBackend(CalendarBackend, FileSystemEventHandler):
     def update(self):
 
         old_calendar = self.calendar
-        with open(self.source) as file_handle:
+        with open(self.path) as file_handle:
             self.calendar = icalendar.Calendar.from_string(file_handle.read())
 
         for old_event in old_calendar.walk('VEVENT'):
