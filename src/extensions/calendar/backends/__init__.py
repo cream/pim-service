@@ -122,7 +122,6 @@ class Calendar(gobject.GObject):
 
 
     def remove_event(self, uid):
-
         """
         Remove an event from the backend. Returns ``True`` if the operation succeded,
         else False. Should not emit a signal.
@@ -130,7 +129,6 @@ class Calendar(gobject.GObject):
 
 
     def update_event(self, uid, fields):
-
         """
         Update an event. Returns ``True`` if the operation succeded, else False.
         Should not emit a signal.
@@ -138,13 +136,11 @@ class Calendar(gobject.GObject):
 
 
     def get_events(self):
-
         """
         Returns all events in the calendar.
         """
 
     def sync_events(self, events):
-
         """
         Retrieves events from the database to be synced with the backend.
         """
