@@ -5,8 +5,8 @@ import icalendar
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from calendar.backends import CalendarBackend, BackendError
-from calendar.util import Event
+from extensions.calendar.backends import CalendarBackend, BackendError
+from extensions.calendar.util import Event
 
 
 class IcalBackend(CalendarBackend, FileSystemEventHandler):

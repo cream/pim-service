@@ -2,8 +2,8 @@ import os
 
 from models import *
 
-from calendar.util import generate_uid, Event as _Event, Calendar as _Calendar, \
-                                     convert_to_datetime
+from extensions.calendar.util import generate_uid, Event as _Event, \
+                                     Calendar as _Calendar, convert_to_datetime
 
 class Database(object):
 

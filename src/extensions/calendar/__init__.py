@@ -1,9 +1,9 @@
 import cream.ipc
 import cream.extensions
 
-from calendar.events import EventManager
-from calendar.util import Event, Calendar
-from calendar.auto_search import search_for_calendars
+from extensions.calendar.events import EventManager
+from extensions.calendar.util import Event, Calendar
+from extensions.calendar.auto_search import search_for_calendars
 
 @cream.extensions.register
 class CalendarExtension(cream.extensions.Extension, cream.ipc.Object):

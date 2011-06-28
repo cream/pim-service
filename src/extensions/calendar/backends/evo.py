@@ -1,4 +1,4 @@
-from calendar.backends.ical import IcalBackend
+from extensions.calendar.backends.ical import IcalBackend
 
 
 class EvolutionBackend(IcalBackend):

@@ -1,10 +1,10 @@
 import gobject
 
-from calendar.database import Database
-from calendar.backends import BackendError
+from extensions.calendar.database import Database
+from extensions.calendar.backends import BackendError
 
-from calendar.backends.ical import IcalBackend
-from calendar.backends.evo import EvolutionBackend
+from extensions.calendar.backends.ical import IcalBackend
+from extensions.calendar.backends.evo import EvolutionBackend
 
 BACKENDS = {
     'icalendar': IcalBackend,
