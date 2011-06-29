@@ -52,13 +52,13 @@ class Calendar(object):
 class Event(object):
     """An internal representation of an event."""
 
-    def __init__(self, uid=None,
+    def __init__(self, uid='',
                         title='',
                         description='',
                         start=None,
                         end=None,
                         location='',
-                        recurrence=None,
+                        recurrence='',
                         synced=False,
                         deleted=False,
                         calendar_uid=''):
@@ -105,7 +105,7 @@ class Event(object):
 
 
     @classmethod
-    def from_ical(self, ical, calendar_uid=None):
+    def from_ical(self, ical, calendar_uid=''):
         """Create an event from an ical string."""
 
         event = icalendar.Event.from_string(ical)
