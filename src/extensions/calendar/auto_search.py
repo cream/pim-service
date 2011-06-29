@@ -1,5 +1,7 @@
 import os
 
+import cream.path
+
 def search_for_calendars():
 
     calendars = {}
@@ -15,7 +17,8 @@ def find_evolution_calendars():
     import evolution
     
     calendars = []
-    base_path = os.path.join(os.environ['XDG_DATA_HOME'], 'evolution/calendar')
+    data_home = cream.path.XDG_DATA_HOME[0]
+    base_path = os.path.join(data_home, 'evolution/calendar')
     
     for name, path in evolution.ecal.list_calendars():
         path = path.replace('local:', '')
