@@ -24,7 +24,7 @@ class GcalEvent(Event):
 
         self.g_event = g_event
         uid = g_event.uid.value
-        title = g_event.title.text
+        title = g_event.title.text or ''
         description = g_event.content.text or ''
 
         when = g_event.when[0]
